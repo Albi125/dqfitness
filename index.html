@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0e1a">
+<title>Dragon Quest Fitness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e1a;--panel:#111827;--panel2:#0d1520;--border:#c8a84b;--border2:#6b5a2a;--text:#e8dfc8;--muted:#8a7a5a;--gold:#c8a84b;--gold2:#f0d070;--hp:#c84040;--mp:#4070c8;--xp:#40a860;--accent:#7850c8;--stone:#1e2840;--stone2:#162030}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:var(--bg)}
+#app{font-family:'Cinzel',serif;color:var(--text);background:var(--bg);min-height:100vh;font-size:12px;max-width:480px;margin:0 auto;border-left:1px solid var(--border2);border-right:1px solid var(--border2)}
+.dq-header{background:var(--panel);border-bottom:2px solid var(--border);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20}
+.dq-title{font-size:11px;color:var(--gold);letter-spacing:2px;font-weight:600}
+.dq-sub{font-size:8px;color:var(--muted);letter-spacing:1px}
+.tab-bar{display:flex;background:var(--panel2);border-bottom:2px solid var(--border2);position:sticky;top:45px;z-index:19}
+.tab-btn{flex:1;padding:9px 1px;font-family:'Cinzel',serif;font-size:7px;color:var(--muted);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;letter-spacing:0.3px}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.screen{display:none;padding:12px}
+.screen.active{display:block}
+.dq-box{border:1px solid var(--border2);background:var(--panel);padding:10px;margin-bottom:10px}
+.dq-box-title{font-size:9px;color:var(--gold);margin-bottom:8px;letter-spacing:1px;border-bottom:1px solid var(--border2);padding-bottom:5px}
+.bar-row{display:flex;align-items:center;gap:6px;margin:4px 0}
+.bar-lbl{width:22px;font-size:7px;color:var(--muted);font-family:'Press Start 2P',monospace}
+.bar-bg{flex:1;background:#05080f;height:8px;border:1px solid var(--border2)}
+.bar-fill{height:100%;transition:width 0.5s}
+.bar-val{font-size:7px;color:var(--text);min-width:52px;text-align:right;font-family:'Press Start 2P',monospace}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.stat-card{background:var(--stone2);border:1px solid var(--border2);padding:6px 8px}
+.stat-name{font-size:7px;color:var(--muted);margin-bottom:2px;letter-spacing:1px}
+.stat-val{font-size:11px;color:var(--gold2);font-family:'Press Start 2P',monospace}
+.dq-btn{font-family:'Cinzel',serif;font-size:9px;padding:8px 12px;border:1px solid var(--border2);background:var(--stone2);color:var(--text);cursor:pointer;display:block;width:100%;margin:5px 0;text-align:left;letter-spacing:0.5px}
+.dq-btn:active{opacity:0.75}
+.dq-btn.gold{border-color:var(--gold);color:var(--gold)}
+.dq-btn.danger{border-color:var(--hp);color:var(--hp)}
+.dq-btn.xp{border-color:var(--xp);color:var(--xp)}
+.dq-btn.small{font-size:8px;padding:5px 8px;margin:2px;width:auto;display:inline-block}
+input,select,textarea{font-family:'Cinzel',serif;font-size:10px;background:var(--stone2);border:1px solid var(--border2);color:var(--text);padding:6px 8px;width:100%;margin:3px 0 7px}
+select option{background:var(--panel)}
+textarea{resize:vertical;min-height:60px}
+.hero-canvas{display:block;margin:0 auto 8px;image-rendering:pixelated}
+.color-row{display:flex;gap:5px;flex-wrap:wrap;margin:5px 0}
+.cdot{width:22px;height:22px;border:2px solid transparent;cursor:pointer}
+.cdot.sel{border-color:var(--gold)}
+.lv-badge{font-size:13px;color:var(--gold);font-family:'Press Start 2P',monospace}
+.rank-txt{text-align:center;font-size:8px;color:var(--accent);margin:4px 0;letter-spacing:1px}
+.hero-name-d{font-size:10px;color:var(--gold2);text-align:center;margin:5px 0;letter-spacing:2px}
+.notice{font-size:8px;color:var(--gold2);padding:6px;border:1px solid var(--gold);margin:6px 0;text-align:center;letter-spacing:1px}
+.log-entry{font-size:8px;color:var(--muted);border-bottom:1px solid var(--border2);padding:5px 0;line-height:1.6}
+.scheda-item{display:flex;align-items:center;gap:8px;padding:8px 6px;border-bottom:1px solid var(--border2);cursor:pointer}
+.scheda-item:active{background:var(--stone)}
+.scheda-check{width:18px;height:18px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:var(--xp);font-family:'Press Start 2P',monospace}
+.scheda-check.done{border-color:var(--xp);background:rgba(64,168,96,0.15)}
+.scheda-ex-name{flex:1;font-size:10px;color:var(--text)}
+.scheda-ex-name.done{color:var(--muted);text-decoration:line-through}
+.scheda-ex-detail{font-size:8px;color:var(--muted)}
+.tab-scheda-bar{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.scheda-tab{font-family:'Cinzel',serif;font-size:8px;padding:5px 9px;border:1px solid var(--border2);background:var(--stone2);color:var(--muted);cursor:pointer}
+.scheda-tab.active{border-color:var(--gold);color:var(--gold)}
+.section-lbl{font-size:8px;color:var(--muted);margin-bottom:3px;letter-spacing:1px}
+.arrow{color:var(--gold);margin-right:5px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="dq-header">
+  <div><div class="dq-title">DRAGON QUEST</div><div class="dq-sub">FITNESS CHRONICLES</div></div>
+  <div style="text-align:right"><div style="font-size:8px;color:var(--muted)">SALVATO</div><div style="font-size:7px;color:var(--border2)" id="saveTime">-</div></div>
+</div>
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('hero',this)">EROE</button>
+  <button class="tab-btn" onclick="showTab('schede',this)">SCHEDE</button>
+  <button class="tab-btn" onclick="showTab('workout',this)">ALLENA</button>
+  <button class="tab-btn" onclick="showTab('stats',this)">STAT</button>
+  <button class="tab-btn" onclick="showTab('log',this)">DIARIO</button>
+</div>
+
+<div id="tab-hero" class="screen active">
+  <div class="dq-box">
+    <canvas id="heroCanvas" class="hero-canvas" width="80" height="80"></canvas>
+    <div class="hero-name-d" id="heroNameD">GUERRIERO</div>
+    <div class="rank-txt" id="rankD">MORTALE COMUNE</div>
+    <div class="bar-row"><div class="bar-lbl" style="color:var(--hp)">HP</div><div class="bar-bg"><div class="bar-fill" id="hpBar" style="background:var(--hp);width:80%"></div></div><div class="bar-val" id="hpVal">-</div></div>
+    <div class="bar-row"><div class="bar-lbl" style="color:var(--mp)">MP</div><div class="bar-bg"><div class="bar-fill" id="mpBar" style="background:var(--mp);width:60%"></div></div><div class="bar-val" id="mpVal">-</div></div>
+    <div class="bar-row"><div class="bar-lbl" style="color:var(--xp)">EXP</div><div class="bar-bg"><div class="bar-fill" id="xpBar" style="background:var(--xp);width:0%"></div></div><div class="bar-val" id="xpVal">0/100</div></div>
+    <div style="text-align:center;margin-top:8px"><span class="lv-badge">LV <span id="lvD">1</span></span><span style="font-size:7px;color:var(--muted);margin-left:10px;font-family:'Press Start 2P',monospace">EXP: <span id="totXpD">0</span></span></div>
+  </div>
+  <div class="dq-box">
+    <div class="dq-box-title">PERSONALIZZA EROE</div>
+    <div class="section-lbl">NOME</div><input type="text" id="heroNameIn" placeholder="Nome eroe..." maxlength="12">
+    <div class="section-lbl">PELLE</div><div class="color-row" id="skinRow"></div>
+    <div class="section-lbl">CAPELLI</div><div class="color-row" id="hairRow"></div>
+    <div class="section-lbl">ARMATURA</div><div class="color-row" id="armorRow"></div>
+    <div class="section-lbl">ARMA</div><div style="display:flex;flex-wrap:wrap;gap:3px;margin:4px 0 8px" id="weapRow"></div>
+    <button class="dq-btn gold" onclick="saveHero()"><span class="arrow">></span>SALVA EROE</button>
+  </div>
+  <div class="dq-box">
+    <div class="dq-box-title">BACKUP DATI</div>
+    <button class="dq-btn" onclick="exportData()"><span class="arrow">></span>ESPORTA BACKUP (.json)</button>
+    <button class="dq-btn" onclick="document.getElementById('importFile').click()"><span class="arrow">></span>IMPORTA BACKUP</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
+  </div>
+</div>
+
+<div id="tab-schede" class="screen">
+  <div class="dq-box">
+    <div class="dq-box-title">LE MIE SCHEDE</div>
+    <div class="tab-scheda-bar" id="schedeTabs"></div>
+    <button class="dq-btn small gold" onclick="addScheda()"><span class="arrow">+</span>NUOVA SCHEDA</button>
+  </div>
+  <div id="schedaEditor" class="dq-box" style="display:none">
+    <div class="dq-box-title" id="schedaEditorTitle">MODIFICA SCHEDA</div>
+    <div class="section-lbl">NOME SCHEDA</div>
+    <input type="text" id="schedaNomeIn" placeholder="Es. Scheda A - Push" maxlength="28">
+    <div class="section-lbl">AGGIUNGI ESERCIZIO</div>
+    <div class="g2">
+      <div><div class="section-lbl">CATEGORIA</div><select id="edCat" onchange="buildEdEx()"></select></div>
+      <div><div class="section-lbl">ESERCIZIO</div><select id="edEx"></select></div>
+      <div><div class="section-lbl">SERIE x REPS</div><input type="text" id="edDetail" placeholder="4x10"></div>
+      <div><div class="section-lbl">NOTE</div><input type="text" id="edNote" placeholder="@60kg"></div>
+    </div>
+    <button class="dq-btn xp" onclick="addExToScheda()"><span class="arrow">+</span>AGGIUNGI ESERCIZIO</button>
+    <div id="schedaExList"></div>
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <button class="dq-btn gold" style="flex:1" onclick="saveScheda()"><span class="arrow">></span>SALVA</button>
+      <button class="dq-btn danger" style="flex:1" onclick="deleteScheda()"><span class="arrow">></span>ELIMINA</button>
+    </div>
+  </div>
+</div>
+
+<div id="tab-workout" class="screen">
+  <div class="dq-box">
+    <div class="dq-box-title">SESSIONE DI OGGI</div>
+    <div class="section-lbl">SELEZIONA SCHEDA</div>
+    <div class="tab-scheda-bar" id="workoutSchedeTabs"></div>
+    <div id="noSchedeMsg" style="font-size:9px;color:var(--muted);padding:8px 0">Crea prima una scheda nella sezione SCHEDE!</div>
+  </div>
+  <div id="workoutSchedaView" class="dq-box" style="display:none">
+    <div class="dq-box-title" id="workoutSchedaTitle">SCHEDA</div>
+    <div id="workoutExList"></div>
+    <div style="margin-top:8px;display:flex;gap:6px">
+      <button class="dq-btn gold" style="flex:1" onclick="completeSession()"><span class="arrow">></span>FINE SESSIONE</button>
+      <button class="dq-btn" style="flex:1" onclick="resetSession()"><span class="arrow">></span>RESET</button>
+    </div>
+    <div id="sessionXpDisplay" style="text-align:center;font-size:8px;color:var(--xp);margin-top:6px;font-family:'Press Start 2P',monospace"></div>
+  </div>
+  <div class="dq-box">
+    <div class="dq-box-title">ESERCIZIO LIBERO</div>
+    <div class="g2">
+      <div><div class="section-lbl">CATEGORIA</div><select id="freeCat" onchange="buildFreeEx()"></select></div>
+      <div><div class="section-lbl">ESERCIZIO</div><select id="freeEx"></select></div>
+      <div><div class="section-lbl">SERIE</div><input type="number" id="freeS" placeholder="3" min="1"></div>
+      <div><div class="section-lbl">REPS</div><input type="number" id="freeR" placeholder="10" min="1"></div>
+      <div><div class="section-lbl">PESO kg</div><input type="number" id="freeW" placeholder="0" step="0.5"></div>
+      <div><div class="section-lbl">RECUPERO s</div><input type="number" id="freeRest" placeholder="90"></div>
+    </div>
+    <button class="dq-btn xp" onclick="logFree()"><span class="arrow">></span>COMPLETA +10 EXP</button>
+    <div id="prNotice" class="notice" style="display:none">NUOVO RECORD! +60 EXP!</div>
+  </div>
+</div>
+
+<div id="tab-stats" class="screen">
+  <div class="dq-box"><div class="dq-box-title">ATTRIBUTI</div><div class="stat-grid" id="statGrid"></div></div>
+  <div class="dq-box"><div class="dq-box-title">RECORD PERSONALI</div><div id="prList" style="font-size:9px;color:var(--muted)">Nessun record ancora.</div></div>
+  <div class="dq-box"><div class="dq-box-title">MILESTONES</div><div id="mileList"></div></div>
+  <button class="dq-btn danger" onclick="if(confirm('Reset completo?'))resetAll()"><span class="arrow">></span>RESET PERSONAGGIO</button>
+</div>
+
+<div id="tab-log" class="screen">
+  <div class="dq-box"><div class="dq-box-title">DIARIO AVVENTURE</div><div id="logList"><div style="font-size:9px;color:var(--muted)">Nessuna impresa ancora.</div></div></div>
+</div>
+</div>
+
+<script>
+const RANKS=[[1,'Mortale Comune'],[5,'Genin del Dojo'],[10,'Accademista di Konoha'],[15,'Chunin Promettente'],[20,'Jonin in Ascesa'],[25,'Guerriero Z'],[30,'Super Saiyan Latente'],[35,'Super Saiyan 1'],[40,'Super Saiyan 2'],[45,'Super Saiyan 3'],[50,'Super Saiyan God'],[55,'Ultra Instinct Embrionale'],[60,'Sostituto Shinigami'],[65,'Bankai Svelato'],[70,'Vasto Lorde'],[75,'Pirata Promettente'],[80,'Primo Ufficiale'],[85,'Imperatore del Mare'],[90,'Re dei Pirati'],[95,'Leggenda Vivente'],[100,'Semidio Guerriero'],[150,'Dio della Distruzione'],[200,'Ultra Istinto Completo'],[300,'Essere Primordiale'],[500,'Trascendente'],[1000,'Il Prescelto Eterno']];
+const EX={PETTO:['Panca Piana Bilanciere','Panca Inclinata Bilanciere','Panca Declinata Bilanciere','Panca Piana Manubri','Panca Inclinata Manubri','Croci Piana','Croci Inclinata','Push-up','Push-up Declinati','Push-up Diamante','Dip Parallele','Chest Press Macchinario','Cable Crossover','Pec Deck','Svend Press'],DORSO:['Stacco da Terra','Trazioni Presa Larga','Trazioni Presa Stretta','Lat Machine Avanti','Lat Machine Dietro','Rematore Bilanciere','Rematore Manubrio','Seated Cable Row','T-Bar Row','Pull-over Manubrio','Face Pull','Scrollate Bilanciere','Hyperextension','Chest Supported Row'],SPALLE:['Lento Avanti Bilanciere','Military Press','Lento Avanti Manubri','Arnold Press','Alzate Laterali','Alzate Frontali','Alzate Posteriori','Upright Row','Shoulder Press Macchinario','Cable Lateral Raise','Clean and Press','Push Press','Bradford Press'],BRACCIA:['Curl Bilanciere','Curl Manubri','Curl Concentrato','Curl Martello','Curl con Cavo','Preacher Curl','Curl 21','Tricep Pushdown','Skull Crusher','Tricep Dip','French Press','Kickback Manubrio','Close Grip Bench','Overhead Tricep Extension','Cable Curl'],GAMBE:['Squat Bilanciere','Front Squat','Hack Squat','Leg Press','Affondi Bilanciere','Affondi Manubri','Bulgarian Split Squat','Leg Extension','Leg Curl','Romanian Deadlift','Good Morning','Calf Raise Piedi','Calf Raise Seduto','Sissy Squat','Sumo Squat'],ADDOME:['Crunch','Crunch Inverso','Leg Raise','Hanging Leg Raise','Plank','Side Plank','Russian Twist','Ab Wheel','Cable Crunch','Dragon Flag','Mountain Climber','Vacuums','Hollow Body Hold','L-Sit','Woodchopper'],CARDIO:['Corsa','Camminata Veloce','Cyclette','Ellittica','Vogatore','Corda Saltare','Burpees','Box Jump','Kettlebell Swing','Battle Rope','HIIT 20/10','Tabata','Sprint 100m','Nuoto','Salita Scale'],'CORPO LIBERO':['Pull-up','Chin-up','Muscle-up','Dip','Pike Push-up','Handstand Hold','L-Sit Hold','Pistol Squat','Nordic Curl','Back Lever','Front Lever','Human Flag','Ring Push-up','Planche Lean']};
+const SKINS=['#FDDBB4','#F1C27D','#E0AC69','#C68642','#8D5524','#4A2912'];
+const HAIRS=['#F5D033','#FF6B35','#C0392B','#1a1a2e','#8E44AD','#1ABC9C','#ECF0F1','#E67E22'];
+const ARMORS=['#2C3E50','#8B0000','#1A237E','#1B5E20','#4A148C','#E65100','#BDC3C7','#c8a84b'];
+const WEAPONS=['SPADA','LANCIA','ASCIA','ARCO','MAGLIO','DOPPIO'];
+let S=JSON.parse(localStorage.getItem('dqfit2')||'null')||{name:'GUERRIERO',xp:0,level:1,skin:0,hair:0,armor:0,weapon:0,log:[],bests:{},schede:[],activeScheda:0,sessionDone:{},stats:{FOR:1,AGI:1,VIT:1,RES:1,SAG:1,INT:1}};
+let editingScheda=-1;
+function save(){localStorage.setItem('dqfit2',JSON.stringify(S));document.getElementById('saveTime').textContent=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});}
+function getRank(lv){let r=RANKS[0][1];for(let[l,n]of RANKS)if(lv>=l)r=n;return r;}
+function xpForLv(lv){return Math.floor(100*Math.pow(lv,1.15));}
+function getLv(tx){let lv=1,sp=0;while(lv<1000){let n=xpForLv(lv);if(sp+n>tx)break;sp+=n;lv++;}return lv;}
+function xpInLv(tx,lv){let sp=0;for(let i=1;i<lv;i++)sp+=xpForLv(i);return tx-sp;}
+function updStats(){let lv=S.level;S.stats={FOR:Math.floor(1+lv*1.8),AGI:Math.floor(1+lv*1.5),VIT:Math.floor(1+lv*2),RES:Math.floor(1+lv*1.6),SAG:Math.floor(1+lv*1.2),INT:Math.floor(1+lv*1.3)};}
+function addXp(amt,reason,isPR){S.xp+=amt;S.level=getLv(S.xp);updStats();let d=new Date();S.log.unshift({text:reason,xp:amt,pr:isPR,date:d.toLocaleDateString('it-IT'),time:d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})});if(S.log.length>150)S.log.pop();save();updateUI();}
+function showTab(id,btn){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+id).classList.add('active');btn.classList.add('active');updateUI();}
+function buildCatSelect(sel){sel.innerHTML='';Object.keys(EX).forEach(c=>{let o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});}
+function buildExSelect(cs,es){es.innerHTML='';(EX[cs.value]||[]).forEach(e=>{let o=document.createElement('option');o.value=e;o.textContent=e;es.appendChild(o);});}
+function buildEdEx(){buildExSelect(document.getElementById('edCat'),document.getElementById('edEx'));}
+function buildFreeEx(){buildExSelect(document.getElementById('freeCat'),document.getElementById('freeEx'));}
+function renderSchedeTabs(){let c=document.getElementById('schedeTabs');c.innerHTML='';S.schede.forEach((s,i)=>{let b=document.createElement('button');b.className='scheda-tab'+(editingScheda===i?' active':'');b.textContent=s.nome||('Scheda '+(i+1));b.onclick=()=>openSchedaEditor(i);c.appendChild(b);});}
+function openSchedaEditor(i){editingScheda=i;let s=S.schede[i];document.getElementById('schedaEditor').style.display='block';document.getElementById('schedaEditorTitle').textContent='MODIFICA: '+(s.nome||'Scheda '+(i+1));document.getElementById('schedaNomeIn').value=s.nome||'';renderSchedaExList();renderSchedeTabs();}
+function renderSchedaExList(){let el=document.getElementById('schedaExList');if(editingScheda<0||!S.schede[editingScheda]){el.innerHTML='';return;}let exs=S.schede[editingScheda].esercizi||[];if(exs.length===0){el.innerHTML='<div style="font-size:9px;color:var(--muted);padding:6px 0">Nessun esercizio aggiunto.</div>';return;}el.innerHTML=exs.map((e,i)=>'<div style="display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px solid var(--border2)"><div style="flex:1"><div style="font-size:9px;color:var(--text)">'+e.nome+'</div><div style="font-size:8px;color:var(--muted)">'+(e.detail||'')+' '+(e.note||'')+'</div></div><button class="dq-btn danger" style="width:auto;padding:3px 8px;margin:0;font-size:8px" onclick="removeEx('+i+')">X</button></div>').join('');}
+function addScheda(){S.schede.push({nome:'Scheda '+(S.schede.length+1),esercizi:[]});save();openSchedaEditor(S.schede.length-1);}
+function addExToScheda(){if(editingScheda<0)return;let nome=document.getElementById('edEx').value;let detail=document.getElementById('edDetail').value.trim();let note=document.getElementById('edNote').value.trim();S.schede[editingScheda].esercizi.push({nome,detail,note});document.getElementById('edDetail').value='';document.getElementById('edNote').value='';save();renderSchedaExList();}
+function removeEx(i){if(editingScheda<0)return;S.schede[editingScheda].esercizi.splice(i,1);save();renderSchedaExList();}
+function saveScheda(){if(editingScheda<0)return;let n=document.getElementById('schedaNomeIn').value.trim();if(n)S.schede[editingScheda].nome=n;save();renderSchedeTabs();document.getElementById('schedaEditorTitle').textContent='MODIFICA: '+S.schede[editingScheda].nome;}
+function deleteScheda(){if(editingScheda<0)return;if(!confirm('Eliminare questa scheda?'))return;S.schede.splice(editingScheda,1);editingScheda=-1;document.getElementById('schedaEditor').style.display='none';save();renderSchedeTabs();}
+function renderWorkoutTabs(){let c=document.getElementById('workoutSchedeTabs');let nm=document.getElementById('noSchedeMsg');let vw=document.getElementById('workoutSchedaView');c.innerHTML='';if(S.schede.length===0){nm.style.display='block';vw.style.display='none';return;}nm.style.display='none';if(S.activeScheda>=S.schede.length)S.activeScheda=0;S.schede.forEach((s,i)=>{let b=document.createElement('button');b.className='scheda-tab'+(S.activeScheda===i?' active':'');b.textContent=s.nome||('Scheda '+(i+1));b.onclick=()=>{S.activeScheda=i;save();renderWorkoutView();renderWorkoutTabs();};c.appendChild(b);});renderWorkoutView();}
+function renderWorkoutView(){let vw=document.getElementById('workoutSchedaView');if(S.schede.length===0){vw.style.display='none';return;}vw.style.display='block';let s=S.schede[S.activeScheda];if(!s){vw.style.display='none';return;}document.getElementById('workoutSchedaTitle').textContent=s.nome||'Scheda';let key='sess_'+S.activeScheda;if(!S.sessionDone[key])S.sessionDone[key]={};let done=S.sessionDone[key];let el=document.getElementById('workoutExList');if(!s.esercizi||s.esercizi.length===0){el.innerHTML='<div style="font-size:9px;color:var(--muted);padding:8px 0">Nessun esercizio in questa scheda.</div>';return;}el.innerHTML=s.esercizi.map((e,i)=>{let isDone=!!done[i];return'<div class="scheda-item" onclick="toggleEx('+i+')"><div class="scheda-check '+(isDone?'done':'')+'">'+(isDone?'V':'')+'</div><div style="flex:1"><div class="scheda-ex-name '+(isDone?'done':'')+'">'+e.nome+'</div><div class="scheda-ex-detail">'+(e.detail||'')+' '+(e.note||'')+'</div></div><div style="font-size:8px;color:'+(isDone?'var(--xp)':'var(--muted)')+';">'+(isDone?'+10 EXP':'')+'</div></div>';}).join('');let dc=Object.keys(done).length;document.getElementById('sessionXpDisplay').textContent=dc>0?'Completati: '+dc+'/'+s.esercizi.length+' | EXP: '+(dc*10):'';}
+function toggleEx(i){let key='sess_'+S.activeScheda;if(!S.sessionDone[key])S.sessionDone[key]={};let done=S.sessionDone[key];if(done[i]){delete done[i];S.xp=Math.max(0,S.xp-10);S.level=getLv(S.xp);updStats();if(S.log.length>0)S.log.shift();save();updateUI();}else{done[i]=true;let s=S.schede[S.activeScheda];addXp(10,s.esercizi[i].nome+' — '+s.nome,false);}renderWorkoutView();}
+function completeSession(){let key='sess_'+S.activeScheda;let done=S.sessionDone[key]||{};if(Object.keys(done).length===0){alert('Completa almeno un esercizio!');return;}S.sessionDone[key]={};let d=new Date();S.log.unshift({text:'Sessione completata: '+(S.schede[S.activeScheda]&&S.schede[S.activeScheda].nome||''),xp:0,pr:false,session:true,date:d.toLocaleDateString('it-IT'),time:d.toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'})});save();updateUI();}
+function resetSession(){if(!confirm('Reset spunte?'))return;S.sessionDone['sess_'+S.activeScheda]={};save();renderWorkoutView();}
+function logFree(){let ex=document.getElementById('freeEx').value;let s=parseInt(document.getElementById('freeS').value)||3;let r=parseInt(document.getElementById('freeR').value)||10;let w=parseFloat(document.getElementById('freeW').value)||0;let rest=parseInt(document.getElementById('freeRest').value)||90;if(!ex)return;let prev=S.bests[ex];let isPR=!!(prev&&(r>prev.reps||w>prev.weight||(rest<prev.rest&&rest>0)));if(!prev||r>=prev.reps||w>=prev.weight)S.bests[ex]={reps:Math.max(r,(prev||{reps:0}).reps),weight:Math.max(w,(prev||{weight:0}).weight),rest};let n=document.getElementById('prNotice');if(isPR){addXp(60,ex+' — RECORD! ('+s+'x'+r+(w?' @'+w+'kg':'')+')' ,true);n.style.display='block';setTimeout(()=>n.style.display='none',3000);}else addXp(10,ex+' — '+s+'x'+r+(w?' @'+w+'kg':''),false);['freeS','freeR','freeW','freeRest'].forEach(id=>document.getElementById(id).value='');}
+function drawHero(){let cv=document.getElementById('heroCanvas');if(!cv)return;let ctx=cv.getContext('2d');ctx.clearRect(0,0,80,80);ctx.imageSmoothingEnabled=false;let sk=SKINS[S.skin],hr=HAIRS[S.hair],ar=ARMORS[S.armor],lv=S.level;function px(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h);}ctx.fillStyle='rgba(0,0,0,0.25)';ctx.beginPath();ctx.ellipse(40,75,13,3,0,0,Math.PI*2);ctx.fill();px(28,56,10,16,ar);px(42,56,10,16,ar);px(26,68,12,8,'#111');px(40,68,12,8,'#111');px(24,36,32,22,ar);px(35,37,10,20,'rgba(255,255,255,0.07)');px(24,54,32,4,'#7a5a10');px(36,54,8,4,ar==='#c8a84b'?'#fff':'#c8a84b');px(14,36,12,18,sk);px(54,36,12,18,sk);px(14,50,12,6,ar);px(54,50,12,6,ar);px(28,14,24,22,sk);px(26,10,28,8,hr);px(24,14,6,10,hr);px(50,14,6,10,hr);if(lv>=10){px(24,8,32,6,hr);px(30,4,20,6,hr);}px(32,22,4,3,'#111');px(44,22,4,3,'#111');px(33,22,2,2,'#fff');px(45,22,2,2,'#fff');if(lv>=50)px(34,29,12,2,'#a02020');else px(36,29,8,1,'#b09070');if(lv>=25){ctx.strokeStyle=lv>=100?'#c8a84b':lv>=50?'#7850c8':'#4070c8';ctx.lineWidth=2;ctx.globalAlpha=0.35;ctx.beginPath();ctx.arc(40,38,30,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;}if(lv>=5){px(8,32,14,18,ar);px(9,33,12,16,'rgba(255,255,255,0.08)');px(13,38,4,6,'#c8a84b');}let wd=[()=>{px(60,20,4,40,'#b0b0b0');px(56,36,12,4,'#7a5a10');px(60,18,4,5,'#e0e0e0');},()=>{px(62,14,3,50,'#8B4513');px(61,10,5,8,'#aaa');px(59,10,9,3,'#aaa');},()=>{px(62,24,3,40,'#8B4513');px(56,20,14,16,'#888');},()=>{ctx.strokeStyle='#8B4513';ctx.lineWidth=2;ctx.beginPath();ctx.arc(68,38,18,Math.PI*0.6,Math.PI*1.4);ctx.stroke();ctx.strokeStyle='#ccc';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(64,24);ctx.lineTo(64,52);ctx.stroke();},()=>{px(62,18,4,44,'#6b3a2a');px(56,18,16,14,'#888');},()=>{px(58,18,3,36,'#aaa');px(64,22,3,36,'#aaa');px(58,15,3,5,'#e0e0e0');px(64,19,3,5,'#e0e0e0');}];wd[S.weapon]();}
+function buildColorPickers(){function mk(id,colors,key){let c=document.getElementById(id);if(!c)return;c.innerHTML='';colors.forEach((col,i)=>{let d=document.createElement('div');d.className='cdot'+(S[key]===i?' sel':'');d.style.background=col;d.onclick=()=>{S[key]=i;buildColorPickers();drawHero();};c.appendChild(d);});}mk('skinRow',SKINS,'skin');mk('hairRow',HAIRS,'hair');mk('armorRow',ARMORS,'armor');let wb=document.getElementById('weapRow');if(!wb)return;wb.innerHTML='';WEAPONS.forEach((w,i)=>{let b=document.createElement('button');b.className='dq-btn small'+(S.weapon===i?' gold':'');b.textContent=w;b.onclick=()=>{S.weapon=i;buildColorPickers();drawHero();};wb.appendChild(b);});}
+function saveHero(){let n=document.getElementById('heroNameIn').value.trim();if(n)S.name=n.toUpperCase().substring(0,12);save();updateUI();}
+function updateHeroPanel(){let lv=S.level,cur=xpInLv(S.xp,lv),need=xpForLv(lv),pct=Math.min(100,Math.round(cur/need*100));let hpM=50+lv*10,mpM=30+lv*7;document.getElementById('hpBar').style.width='80%';document.getElementById('mpBar').style.width='60%';document.getElementById('xpBar').style.width=pct+'%';document.getElementById('hpVal').textContent=Math.floor(hpM*0.8)+'/'+hpM;document.getElementById('mpVal').textContent=Math.floor(mpM*0.6)+'/'+mpM;document.getElementById('xpVal').textContent=cur+'/'+need;document.getElementById('lvD').textContent=lv;document.getElementById('totXpD').textContent=S.xp;document.getElementById('heroNameD').textContent=S.name;document.getElementById('rankD').textContent=getRank(lv).toUpperCase();document.getElementById('heroNameIn').value=S.name==='GUERRIERO'?'':S.name;}
+function updateStatsTab(){let g=document.getElementById('statGrid');if(!g)return;updStats();let lb={FOR:'FORZA',AGI:'AGILITA',VIT:'VITALITA',RES:'RESISTENZA',SAG:'SAGGEZZA',INT:'INTELLETTO'};g.innerHTML=Object.entries(S.stats).map(([k,v])=>'<div class="stat-card"><div class="stat-name">'+lb[k]+'</div><div class="stat-val">'+v+'</div></div>').join('');let pl=document.getElementById('prList');if(!pl)return;let bs=Object.entries(S.bests);if(bs.length===0){pl.innerHTML='<span style="font-size:9px;color:var(--muted)">Nessun record ancora.</span>';return;}pl.innerHTML=bs.slice(0,14).map(([ex,b])=>'<div style="border-bottom:1px solid var(--border2);padding:5px 0"><div style="font-size:9px;color:var(--gold)">'+ex+'</div><div style="font-size:8px;color:var(--muted)">Rep: '+b.reps+' | Peso: '+b.weight+'kg | Rec: '+b.rest+'s</div></div>').join('');let ml=document.getElementById('mileList');if(!ml)return;let tl=S.log.length,pr=S.log.filter(l=>l.pr).length;ml.innerHTML=[{d:tl>=1,t:'Prima impresa completata'},{d:tl>=10,t:'10 esercizi completati'},{d:tl>=50,t:'50 esercizi completati'},{d:tl>=100,t:'100 esercizi completati'},{d:pr>=1,t:'Primo record personale'},{d:pr>=10,t:'10 record personali'},{d:S.level>=10,t:'Livello 10 raggiunto'},{d:S.level>=50,t:'Livello 50 raggiunto'},{d:S.level>=100,t:'Livello 100 raggiunto'},{d:S.schede.length>=1,t:'Prima scheda creata'},{d:S.schede.length>=3,t:'Tre schede create'}].map(m=>'<div style="padding:4px 0;font-size:8px;color:'+(m.d?'var(--xp)':'var(--muted)')+';">'+(m.d?'[V]':'[ ]')+' '+m.t+'</div>').join('');}
+function updateLogTab(){let ll=document.getElementById('logList');if(!ll)return;if(S.log.length===0){ll.innerHTML='<div style="font-size:9px;color:var(--muted)">Nessuna impresa ancora.</div>';return;}ll.innerHTML=S.log.slice(0,50).map(l=>'<div class="log-entry"><span style="color:'+(l.session?'var(--accent)':l.pr?'var(--gold)':'var(--text)')+';">'+(l.session?'[SESSIONE] ':l.pr?'[RECORD] ':'')+l.text+'</span><br><span style="color:'+(l.pr?'var(--gold)':l.session?'var(--accent)':'var(--xp)')+';">'+(l.xp>0?'+'+l.xp+' EXP':'')+'</span><span style="float:right;color:var(--muted);font-size:7px">'+l.date+' '+l.time+'</span></div>').join('');}
+function exportData(){let blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='dqfitness_backup.json';a.click();}
+function importData(input){let file=input.files[0];if(!file)return;let reader=new FileReader();reader.onload=e=>{try{S=JSON.parse(e.target.result);save();updateUI();alert('Backup importato!');}catch(err){alert('File non valido!');}};reader.readAsText(file);}
+function resetAll(){S={name:'GUERRIERO',xp:0,level:1,skin:0,hair:0,armor:0,weapon:0,log:[],bests:{},schede:[],activeScheda:0,sessionDone:{},stats:{FOR:1,AGI:1,VIT:1,RES:1,SAG:1,INT:1}};editingScheda=-1;save();updateUI();}
+function updateUI(){updateHeroPanel();drawHero();buildColorPickers();buildCatSelect(document.getElementById('edCat'));buildEdEx();buildCatSelect(document.getElementById('freeCat'));buildFreeEx();renderSchedeTabs();renderWorkoutTabs();updateStatsTab();updateLogTab();}
+updStats();updateUI();
+</script>
+</body>
+</html>
